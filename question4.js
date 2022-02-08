@@ -1,5 +1,8 @@
 const request = require('request');
 const fs = require('fs');
+const https = require("https");
+//https is opening images
+//request is not opening
 
 const urls = [
     "https://doodleart.redbull.com/assets/managed/entries/processed/sm/367010617181759_36211000.jpg",
@@ -14,7 +17,6 @@ const urls = [
 
 let cnt = 0,folder = 0;
 
-
 for(let url of urls){
     if(cnt%5==0){
         folder++;
@@ -24,22 +26,14 @@ for(let url of urls){
     if(!fs.existsSync(folderpath)){
         fs.mkdirSync(folderpath)
     }
-    console.log(url);
-    request(url,(err,res,body)=>{
-        if(err){
-            console.log(url);
-            console.log('err occured for img ',cnt," ",err);
-            return err;
-        } 
-        const filepath = `${folderpath}/img${cnt}.jpg`;
-        res.pipe(fs.createWriteStream(filepath))
-            .on('finish',(err)=>{
-                if(err){
-                    console.log("could not finish img",cnt);
-                }
-            })
+    const filepath = `${folderpath}/img${cnt}.jpg`;
+    let c = cnt;
+    https.get(url,(res)=>{       
+        console.log(c); 
+        res.pipe(fs.createWriteStream(filepath)).on('finish',(err)=>{
+            if(err){
+                console.log("could not finish img",cnt);
+            }
+        })
     })
 }
-
-
-
